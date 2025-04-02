@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">SSIP Projects</h3>
+                    {% if current_user.has_role('student') %}
+                    <a href="{{ url_for('main.apply_ssip') }}" class="btn btn-success pull-right">
+                        <i class="fas fa-plus"></i> Apply for SSIP
+                    </a>
+                    {% endif %}
+                    {% if current_user.has_role('admin') %}
+                    <a href="{{ url_for('admin.manage_ssip') }}" class="btn btn-primary pull-right">
+                        <i class="fas fa-cog"></i> Manage SSIP Projects
+                    </a>
+                    {% endif %}
+                </div>
+                
+                {% if current_user.has_role('student') %}
+                <div class="panel-body">
+                    <h4>My Applications</h4>
+                    {% if current_user.ssip_projects %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Project Type</th>
+                                    <th>Fund Required (₹)</th>
+                                    <th>Status</th>
+                                    <th>Submitted On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ssip in current_user.ssip_projects %}
+                                <tr>
+                                    <td>{{ ssip.title }}</td>
+                                    <td>{{ ssip.project_type }}</td>
+                                    <td>₹{{ "%.2f"|format(ssip.fund_required) }}</td>
+                                    <td>
+                                        <span class="label label-{{ 'success' if ssip.status == 'approved' else 'warning' if ssip.status == 'pending' else 'danger' }}">
+                                            {{ ssip.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ ssip.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        You haven't submitted any SSIP applications yet.
+                        <a href="{{ url_for('main.apply_ssip') }}" class="alert-link">Apply now</a>!
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="panel-body">
+                    <h4>All SSIP Projects</h4>
+                    {% if ssips %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Project Type</th>
+                                    <th>Student</th>
+                                    <th>Status</th>
+                                    <th>Submitted On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ssip in ssips %}
+                                <tr>
+                                    <td>{{ ssip.title }}</td>
+                                    <td>{{ ssip.project_type }}</td>
+                                    <td>{{ ssip.student.email if ssip.student else 'N/A' }}</td>
+                                    <td>
+                                        <span class="label label-{{ 'success' if ssip.status == 'approved' else 'warning' if ssip.status == 'pending' else 'danger' }}">
+                                            {{ ssip.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ ssip.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">No SSIP projects found.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -55,6 +55,11 @@
                     <i class="fas fa-project-diagram"></i> Projects
                 </a>
             </li>
+            <li role="presentation">
+                <a href="#ssip" aria-controls="ssip" role="tab" data-toggle="tab">
+                    <i class="fas fa-lightbulb"></i> SSIP
+                </a>
+            </li>
         </ul>
 
         <!-- Tab Content -->
@@ -149,6 +154,11 @@
             <!-- Projects Tab -->
             <div role="tabpanel" class="tab-pane" id="projects">
                 {% include "admin/tabs/projects.html" %}
+            </div>
+
+            <!-- SSIP Tab -->
+            <div role="tabpanel" class="tab-pane" id="ssip">
+                {% include "admin/tabs/ssip.html" %}
             </div>
         </div>
     </div>

@@ -5,6 +5,7 @@ from ..models.user import User, Role
 from ..models.department import Department
 from ..models.project import Project
 from ..models.result import Result
+from ..models.ssip import SSIP
 from ..forms.admin import UserCreationForm, BulkUserUploadForm, ResultUploadForm
 from ..extensions import db
 from datetime import datetime
@@ -41,6 +42,9 @@ def index():
     # Get projects
     projects = Project.query.all()
     
+    # Get SSIP projects
+    ssips = SSIP.query.all()
+    
     return render_template('admin/index.html', 
                          pending_users=pending_users,
                          hods=hods,
@@ -50,7 +54,8 @@ def index():
                          librarians=librarians,
                          store_officers=store_officers,
                          departments=departments,
-                         projects=projects)
+                         projects=projects,
+                         ssips=ssips)
 
 @bp.route('/approve_user/<int:user_id>', methods=['POST'])
 @roles_required('admin')
@@ -593,3 +598,84 @@ def view_result_details(student_id, exam_id):
         abort(403)
     
     return render_template('admin/result_details.html', result=result)
+
+@bp.route('/ssip')
+@roles_required('admin')
+def manage_ssip():
+    ssips = SSIP.query.all()
+    return render_template('admin/ssip.html', ssips=ssips)
+
+@bp.route('/ssip/create', methods=['POST'])
+@roles_required('admin')
+def create_ssip():
+    title = request.form.get('title')
+    description = request.form.get('description')
+    
+    if not title:
+        flash('Title is required', 'error')
+        return redirect(url_for('admin.manage_ssip'))
+    
+    ssip = SSIP(title=title, description=description)
+    db.session.add(ssip)
+    db.session.commit()
+    
+    flash('SSIP project created successfully', 'success')
+    return redirect(url_for('admin.manage_ssip'))
+
+@bp.route('/ssip/<int:ssip_id>', methods=['GET'])
+@roles_required('admin')
+def get_ssip(ssip_id):
+    ssip = SSIP.query.get_or_404(ssip_id)
+    return jsonify({
+        'id': ssip.id,
+        'title': ssip.title,
+        'description': ssip.description
+    })
+
+@bp.route('/ssip/<int:ssip_id>', methods=['POST'])
+@roles_required('admin')
+def update_ssip(ssip_id):
+    ssip = SSIP.query.get_or_404(ssip_id)
+    
+    title = request.form.get('title')
+    description = request.form.get('description')
+    
+    if not title:
+        flash('Title is required', 'error')
+        return redirect(url_for('admin.manage_ssip'))
+    
+    ssip.title = title
+    ssip.description = description
+    ssip.updated_at = datetime.utcnow()
+    
+    db.session.commit()
+    flash('SSIP project updated successfully', 'success')
+    return redirect(url_for('admin.manage_ssip'))
+
+@bp.route('/ssip/delete/<int:ssip_id>', methods=['POST'])
+@roles_required('admin')
+def delete_ssip(ssip_id):
+    ssip = SSIP.query.get_or_404(ssip_id)
+    db.session.delete(ssip)
+    db.session.commit()
+    
+    flash('SSIP project deleted successfully', 'success')
+    return redirect(url_for('admin.manage_ssip'))
+
+@bp.route('/ssip/<int:id>/approve', methods=['POST'])
+@roles_required('admin')
+def approve_ssip(id):
+    ssip = SSIP.query.get_or_404(id)
+    ssip.status = 'approved'
+    db.session.commit()
+    flash('SSIP project approved successfully', 'success')
+    return redirect(url_for('admin.manage_ssip'))
+
+@bp.route('/ssip/<int:id>/reject', methods=['POST'])
+@roles_required('admin')
+def reject_ssip(id):
+    ssip = SSIP.query.get_or_404(id)
+    ssip.status = 'rejected'
+    db.session.commit()
+    flash('SSIP project rejected', 'info')
+    return redirect(url_for('admin.manage_ssip'))

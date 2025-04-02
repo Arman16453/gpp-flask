@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Apply for SSIP Project</h3>
+                </div>
+                <div class="panel-body">
+                    <form method="POST" action="{{ url_for('main.submit_ssip_application') }}" class="form-horizontal">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Project Title *</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Project Type *</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" name="project_type" required>
+                                    <option value="">Select Project Type</option>
+                                    <option value="Product Development">Product Development</option>
+                                    <option value="Process Improvement">Process Improvement</option>
+                                    <option value="Software Development">Software Development</option>
+                                    <option value="Research">Research</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Fund Required (₹) *</label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control" name="fund_required" required min="0" step="0.01">
+                                <small class="text-muted">Enter the amount in Indian Rupees</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Project Objective *</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" name="objective" rows="3" required 
+                                    placeholder="Clearly state the main objective of your project"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Project Description *</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" name="description" rows="5" required
+                                    placeholder="Provide a detailed description of your project"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Methodology *</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" name="methodology" rows="5" required
+                                    placeholder="Explain the methods and steps you will use to achieve your objective"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Expected Outcome *</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" name="expected_outcome" rows="3" required
+                                    placeholder="What are the expected results and benefits of your project?"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-primary">Submit Application</button>
+                                <a href="{{ url_for('main.ssip_dashboard') }}" class="btn btn-default">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    $(document).ready(function() {
+        // Add form validation if needed
+        $('form').on('submit', function(e) {
+            var fundRequired = parseFloat($('input[name="fund_required"]').val());
+            if (fundRequired <= 0) {
+                e.preventDefault();
+                alert('Fund required must be greater than 0');
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock %}
